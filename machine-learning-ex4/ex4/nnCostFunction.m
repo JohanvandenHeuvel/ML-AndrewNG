@@ -61,6 +61,8 @@ Theta2_grad = zeros(size(Theta2));
 %               the regularization separately and then add them to Theta1_grad
 %               and Theta2_grad from Part 2.
 %
+
+% ++++++++ Part 1 ++++++++
 cost = 0;
 
 for i = 1:m %for every training example
@@ -71,20 +73,48 @@ for i = 1:m %for every training example
   hidden_layer  = [bias ; sigmoid(Theta1 * input_layer)];   %Layer 2
   output_layer  = [sigmoid(Theta2 * hidden_layer)];         %Layer 3
   
-  hypothesis = output_layer;
   label = zeros(num_labels,1);
   label(y(i)) = 1; 
   
-  error = sum(- label' * log(hypothesis) - (1 - label') * log(1 - hypothesis));
-  
+  error = sum(- label' * log(output_layer) - (1 - label') * log(1 - output_layer));
   cost = cost + error;
- end
+end
 
-J = 1/m * cost;
+regularization = (lambda / (2*m)) * (sum(sum(Theta1(:, 2:end) .^2)) + sum(sum(Theta2(:, 2:end) .^2)));
+J = 1/m * cost + regularization;
 
-regularization = (lambda / (2*m)) * (sum(sum(Theta1 .^2)) + sum(sum(Theta2 .^2)));
+% ++++++++ Part 2 ++++++++
 
-J = J + regularization
+for t = 1:m
+  bias = 1;
+  input_vector = (X(t,:))';
+  
+  input_layer   = [bias ; input_vector];                    %Layer 1
+  hidden_layer  = [bias ; sigmoid(Theta1 * input_layer)];   %Layer 2
+  output_layer  = [sigmoid(Theta2 * hidden_layer)];         %Layer 3
+  
+  label = zeros(num_labels,1);
+  label(y(t)) = 1;
+  
+  error_output_layer = output_layer - label;
+  error_hidden_layer = Theta2(:, 2:end)' * error_output_layer .* sigmoidGradient(Theta1 * input_layer);
+  
+  Theta2_grad = Theta2_grad + (error_output_layer * hidden_layer');
+  Theta1_grad = Theta1_grad + (error_hidden_layer * input_layer');
+ 
+end
+
+Theta2_grad = (1/m) * Theta2_grad;
+Theta1_grad = (1/m) * Theta1_grad;
+
+% ++++++++ Part 3 ++++++++
+reg2 = [zeros(size(Theta2,1),1),(lambda/m)*Theta2(:, 2:end)];
+reg1 = [zeros(size(Theta1,1),1),(lambda/m)*Theta1(:, 2:end)];
+
+Theta2_grad = Theta2_grad + reg2;
+Theta1_grad = Theta1_grad + reg1;
+
+
 
 % -------------------------------------------------------------
 
