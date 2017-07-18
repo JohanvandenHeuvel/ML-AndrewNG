@@ -8,8 +8,8 @@ function [J grad] = nnCostFunction(nn_params, ...
 %   [J grad] = NNCOSTFUNCTON(nn_params, hidden_layer_size, num_labels, ...
 %   X, y, lambda) computes the cost and gradient of the neural network. The
 %   parameters for the neural network are "unrolled" into the vector
-%   nn_params and need to be converted back into the weight matrices. 
-% 
+%   nn_params and need to be converted back into the weight matrices.
+%
 %   The returned parameter grad should be a "unrolled" vector of the
 %   partial derivatives of the neural network.
 %
@@ -24,8 +24,8 @@ Theta2 = reshape(nn_params((1 + (hidden_layer_size * (input_layer_size + 1))):en
 
 % Setup some useful variables
 m = size(X, 1);
-         
-% You need to return the following variables correctly 
+
+% You need to return the following variables correctly
 J = 0;
 Theta1_grad = zeros(size(Theta1));
 Theta2_grad = zeros(size(Theta2));
@@ -46,12 +46,12 @@ Theta2_grad = zeros(size(Theta2));
 %         that your implementation is correct by running checkNNGradients
 %
 %         Note: The vector y passed into the function is a vector of labels
-%               containing values from 1..K. You need to map this vector into a 
+%               containing values from 1..K. You need to map this vector into a
 %               binary vector of 1's and 0's to be used with the neural network
 %               cost function.
 %
 %         Hint: We recommend implementing backpropagation using a for-loop
-%               over the training examples if you are implementing it for the 
+%               over the training examples if you are implementing it for the
 %               first time.
 %
 % Part 3: Implement regularization with the cost function and gradients.
@@ -68,14 +68,14 @@ cost = 0;
 for i = 1:m %for every training example
   bias = 1;
   input_vector = (X(i,:))';
-  
+
   input_layer   = [bias ; input_vector];                    %Layer 1
   hidden_layer  = [bias ; sigmoid(Theta1 * input_layer)];   %Layer 2
   output_layer  = [sigmoid(Theta2 * hidden_layer)];         %Layer 3
-  
+
   label = zeros(num_labels,1);
-  label(y(i)) = 1; 
-  
+  label(y(i)) = 1;
+
   error = sum(- label' * log(output_layer) - (1 - label') * log(1 - output_layer));
   cost = cost + error;
 end
@@ -88,20 +88,20 @@ J = 1/m * cost + regularization;
 for t = 1:m
   bias = 1;
   input_vector = (X(t,:))';
-  
+
   input_layer   = [bias ; input_vector];                    %Layer 1
   hidden_layer  = [bias ; sigmoid(Theta1 * input_layer)];   %Layer 2
   output_layer  = [sigmoid(Theta2 * hidden_layer)];         %Layer 3
-  
+
   label = zeros(num_labels,1);
   label(y(t)) = 1;
-  
+
   error_output_layer = output_layer - label;
   error_hidden_layer = Theta2(:, 2:end)' * error_output_layer .* sigmoidGradient(Theta1 * input_layer);
-  
+
   Theta2_grad = Theta2_grad + (error_output_layer * hidden_layer');
   Theta1_grad = Theta1_grad + (error_hidden_layer * input_layer');
- 
+
 end
 
 Theta2_grad = (1/m) * Theta2_grad;
